@@ -90,7 +90,7 @@ $ rails generate migration NomDeTaMigration
 ```
 
 Si tu exécutes cette commande, il devrait créer un fichier de migration qui ressemble à quelque chose comme ça :
-```python
+```ruby
 class NomDeTaMigration < ActiveRecord::Migration[5.2]
   def change
     # ici tu mettras les modifications que tu aimerais apporter à ta base de données
@@ -105,7 +105,7 @@ $ rails db:migrate
 
 
 Voici une migration qui dit "crée une table users et donne-lui une colonne name, de type string, et une colonne is_admin, de type booléen" :
-```python
+```ruby
 def change
   create_table :users do |t|
     t.string :name
@@ -116,7 +116,7 @@ end
 ````
 
 Voici une migration qui dit "dans la table users qui existe déjà, ajoute une colonne email, qui sera un string" :
-```python
+```ruby
 def change
   add_column :users, :email, :string
 end
@@ -124,7 +124,7 @@ end
 
 Voici une migration qui dit "dans la table users qui existe déjà, enlève la colonne is_admin" :
 
-```python
+```ruby
 def change
   remove_column :users, :is_admin, :boolean
 end
@@ -174,23 +174,40 @@ $ rails generate migration AddIndexToBooks
 ```
 
 Ensuite on rentre les lignes suivantes dans le fichier de migration, avant de la passer :
-```
+```Ruby
 def change
   add_reference :books, :author, foreign_key: true
 end
 ```
 
 Reste alors à modifier tes modèles pour prendre en compte les associations :
-```
+```Ruby
 class Book < ApplicationRecord
   belongs_to :author
 end
 ```
-```
+```Ruby
 class Author < ApplicationRecord
   has_many :books
 end
 ```
 
+Si l'on souhaite lier une base à sa création
+
+```
+$ rails generate model Book
+```
+
+Rajoute la ligne t.belongs_to :author, index: true dans la migration :
+```Ruby
+class CreateBooks < ActiveRecord::Migration[5.1]
+  def change
+    create_table :books do |t|
+      t.belongs_to :author, index: true
+      t.timestamps
+    end
+  end
+end
+```
 
 
