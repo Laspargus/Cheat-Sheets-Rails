@@ -628,3 +628,67 @@ Ou carrément restreindre les routes en faisant un petit only:
 resources :comments, only: [:new, :create, :index, :destroy]
 
 ```
+
+
+### Les controllers
+
+On peut créer les méthodes et les vues correspondantes directement avec la commande
+```ruby
+$ rails g controller users index show new create edit update destroy 
+```
+Voici le controller généré :
+
+```ruby
+class UsersController < ApplicationController
+
+  def index
+    # Méthode qui récupère tous les potins et les envoie à la view index (index.html.erb) pour affichage
+  end
+
+  def show
+    # Méthode qui récupère le potin concerné et l'envoie à la view show (show.html.erb) pour affichage
+  end
+
+  def new
+    # Méthode qui crée un potin vide et l'envoie une view qui affiche le formulaire pour 'le remplir' (new.html.erb)
+  end
+
+  def create
+    # Méthode qui créé un potin à partir du contenu du formulaire de new.html.erb, soumis par l'utilisateur
+    # pour info, le contenu de ce formulaire sera accessible dans le hash params (ton meilleur pote)
+    # Une fois la création faite, on redirige généralement vers la méthode show (pour afficher le potin créé)
+  end
+
+  def edit
+    # Méthode qui récupère le potin concerné et l'envoie à la view edit (edit.html.erb) pour affichage dans un formulaire d'édition
+  end
+
+  def update
+    # Méthode qui met à jour le potin à partir du contenu du formulaire de edit.html.erb, soumis par l'utilisateur
+    # pour info, le contenu de ce formulaire sera accessible dans le hash params
+    # Une fois la modification faite, on redirige généralement vers la méthode show (pour afficher le potin modifié)
+  end
+
+  def destroy
+    # Méthode qui récupère le potin concerné et le détruit en base
+    # Une fois la suppression faite, on redirige généralement vers la méthode index (pour afficher la liste à jour)
+  end
+end
+```
+
+### Les formulaires
+
+Example de formualire simple
+```ruby
+<form action= <%= gossips_path %> method="POST">
+<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>
+  <input type="text" name="gossip_text">
+  <input type="submit" value="Valider">
+</form>
+
+Les champs du formulaire sont ensuite disponibles dans le controller via le hash params
+
+
+## A FAIRE LE FORMULAIRE FORMTAG
+http://thehackingproject.herokuapp.com/dashboard/weeks/5/days/2?locale=fr
+https://guides.rubyonrails.org/form_helpers.html
