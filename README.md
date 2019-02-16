@@ -13,7 +13,7 @@ Puis se mettre dedans (sinon dur de travailler dessus) :
 var s = "JavaScript syntax highlighting";
 alert(s);
 ```
-```
+```ruby
 rails new appname --skip-sprockets
 @event=Event.new
 `````
