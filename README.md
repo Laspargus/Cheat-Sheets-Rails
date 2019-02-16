@@ -593,3 +593,38 @@ Une fois cette ligne écrite, tu peux voir son résultat en faisant un petit $ r
                           DELETE /gossips/:id(.:format)                                                                   gossips#destroy
 
 ```
+
+Sache aussi que tu peux imbriquer les routes entre elles et faire ce que l'on appelle des nested resources.
+
+```ruby
+resources :gossips do
+  resources :comments
+end
+```
+
+
+Et voilà ce que cela ajoute dans $ rails routes :
+```ruby
+                   Prefix Verb   URI Pattern                                                                              Controller#Action
+                          GET    /message/:user_entry(.:format)                                                           message#show
+          gossip_comments GET    /gossips/:gossip_id/comments(.:format)                                                   comments#index
+                          POST   /gossips/:gossip_id/comments(.:format)                                                   comments#create
+       new_gossip_comment GET    /gossips/:gossip_id/comments/new(.:format)                                               comments#new
+      edit_gossip_comment GET    /gossips/:gossip_id/comments/:id/edit(.:format)                                          comments#edit
+           gossip_comment GET    /gossips/:gossip_id/comments/:id(.:format)                                               comments#show
+                          PATCH  /gossips/:gossip_id/comments/:id(.:format)                                               comments#update
+                          PUT    /gossips/:gossip_id/comments/:id(.:format)                                               comments#update
+                          DELETE /gossips/:gossip_id/comments/:id(.:format)                                               comments#destroy
+			  
+			  ```
+
+Tu peux supprimer une route créée par resources avec un except: comme cela :
+```ruby
+resources :gossips, except: [:destroy] 
+```
+
+Ou carrément restreindre les routes en faisant un petit only:
+```ruby
+resources :comments, only: [:new, :create, :index, :destroy]
+
+```
