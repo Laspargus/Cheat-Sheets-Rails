@@ -168,5 +168,29 @@ La commande de génération d'un modèle te permet même d'ajouter direct les co
 $ rails generate model User email:string is_admin:boolean
 ```
 
+#### Ajout de liens entre 2 tables déjà existantes
+```
+$ rails generate migration AddIndexToBooks
+```
+
+Ensuite on rentre les lignes suivantes dans le fichier de migration, avant de la passer :
+```
+def change
+  add_reference :books, :author, foreign_key: true
+end
+```
+
+Reste alors à modifier tes modèles pour prendre en compte les associations :
+```
+class Book < ApplicationRecord
+  belongs_to :author
+end
+```
+```
+class Author < ApplicationRecord
+  has_many :books
+end
+```
+
 
 
