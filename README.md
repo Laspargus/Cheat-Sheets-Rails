@@ -13,6 +13,6 @@ Puis se mettre dedans (sinon dur de travailler dessus) :
 var s = "JavaScript syntax highlighting";
 alert(s);
 ```
-'''
+```
 rails new appname --skip-sprockets
-'''
+`````
