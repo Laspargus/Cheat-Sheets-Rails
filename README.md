@@ -15,4 +15,5 @@ alert(s);
 ```
 ```
 rails new appname --skip-sprockets
+@event=Event.new
 `````
