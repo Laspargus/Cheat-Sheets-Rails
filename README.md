@@ -504,3 +504,92 @@ Pour créer un lien sur une image ou un div avec le helper
     <div>YOUR CONTENT</div>
 <% end %>
 ```
+
+### Heroku
+
+
+Avant de push, tu vas créer ton application sur Heroku :
+
+```
+$ heroku create
+```
+
+
+🚀 ALERTE BONNE ASTUCE
+De base, ton application aura un nom de genre pacific-turkey-4983849. Mais tu peux la changer en un truc plus sympa (à condition que ce ne soit pas pris) du genre nom-de-ton-app avec la ligne suivante :
+``` 
+$ heroku create nom-de-ton-app
+```
+
+Et tu peux changer le nom de ton app existante avec :
+
+```
+heroku apps:rename nouveau-nom-de-ton-app
+```
+
+#### Mettre ton app en prod
+
+Et voilà, LA partie importante. Avant de faire le push, on va voir un truc ensemble. Fais donc :
+
+```
+$ git remote --v
+```
+
+Il devrait te renvoyer un truc du genre :
+
+```
+heroku https://git.heroku.com/nom-de-ton-app.git (fetch)
+heroku  https://git.heroku.com/nom-de-ton-app.git (push)
+origin  git@github.com:username/repo.git (fetch)
+origin  git@github.com:username/repo.git (push)
+```
+
+Si tu n'es pas trop en galère sur git, tu devrais comprendre qu'en créant ton application, tu as branché une nouvelle remote à git. En plus de pouvoir push ton joli travail sur Origin (donc GitHub), tu peux le push sur la remote Heroku. Et bien testons cela :
+
+```
+$ git add .
+$ git commit -m "First commit and pushing to Heroku"
+$ git push heroku master
+```
+
+Pour migrer sa base de donnée sur heroku 
+```
+$ heroku run rails db:migrate
+```
+
+En cas d'erreur de type : ```You must use Bundler 2 or greater with this lockfile```
+You might fix this with a command :
+
+```
+heroku buildpacks:set https://github.com/bundler/heroku-buildpack-bundler2
+```
+
+
+### Le CRUD
+
+S'il y a une chose à retenir, c'est que toute route sur Rails correspond à une requête du REST, et que derrière, cette route va pointer vers une action du CRUD, pour la ressource qui la concerne. Cette action s'effectuera au sein d'une méthode de controller puis renverra vers une view correspondante. 
+En d'autres termes, les routes suivent la convention REST (7 requêtes possibles) et pointent vers des controllers qui établissent une action du CRUD avec des méthodes ayant des noms fixés par convention : #new, #create, #show, #index, #edit, #update et #destroy.
+
+
+#### Les routes automatises avec resources
+
+il existe un moyen d'automatiser l'écriture des routes qui suivent la convention. 
+Pour cela, il suffit d'une seule ligne dans le fichier routes.rb :
+```ruby
+resources :gossips
+```
+
+
+Une fois cette ligne écrite, tu peux voir son résultat en faisant un petit $ rails routes :
+```ruby
+                   Prefix Verb   URI Pattern                                                                              Controller#Action
+                  gossips GET    /gossips(.:format)                                                                       gossips#index
+                          POST   /gossips(.:format)                                                                       gossips#create
+               new_gossip GET    /gossips/new(.:format)                                                                   gossips#new
+              edit_gossip GET    /gossips/:id/edit(.:format)                                                              gossips#edit
+                   gossip GET    /gossips/:id(.:format)                                                                   gossips#show
+                          PATCH  /gossips/:id(.:format)                                                                   gossips#update
+                          PUT    /gossips/:id(.:format)                                                                   gossips#update
+                          DELETE /gossips/:id(.:format)                                                                   gossips#destroy
+
+```
