@@ -17,3 +17,8 @@ alert(s);
 rails new appname --skip-sprockets
 @event=Event.new
 `````
+
+
+```command
+$rails g controller
+
