@@ -1,8 +1,6 @@
 # Cheat-Sheets-Rails
-## Installation
 
-
-### Rails
+## Rails
 
 Commencer par créer une nouvelle appli rails :
 
@@ -51,7 +49,7 @@ Installer les Gems avec un :
 $ bundle install
 ```
 
-####First commit
+###First commit
 En théorie, installer une app rails initialize un git, donc pas besoin de git commit. On va donc faire le premier commit. Si l'on veut lier son application Rails à un remote, c'est possible avec git remote add origin blabla_nom_origine.
 ```
 git add .
@@ -59,7 +57,7 @@ git commit -m "premier commit"
 ```
 
 
-####Github
+###Github
 Push an existing repository from the command line
 ```
 git remote add origin https://github.com/Laspargus/testtest.git
@@ -70,7 +68,7 @@ git push -u origin master
 
 
 
-####Git push heroku master
+###Git push heroku master
 Maintenant il ne reste plus qu'à commiter, et pousser ça chez heroku.
 
 ```
