@@ -35,7 +35,7 @@ gem 'rails_db', '2.0.4'
 
 ```
 
-
+Installer les Gems avec un : 
 
 ```
 $ bundle install
