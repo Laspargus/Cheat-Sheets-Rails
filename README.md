@@ -9,7 +9,17 @@ Commencer par créer une nouvelle appli rails :
 ```
 $ rails new nom_de_mon_app
 ```
-Cela va créer un nouveau dossier Rails nommé my_first_app. Tu n'as plus qu'a te déplacer dans ce répertoire et lancer la fameuse commande :
+🚀 ALERTE BONNE ASTUCE
+Un petit alias pour que $ rails new ajoute le -d postgresql me semble être une bonne idée 😉
+Ex :
+```
+alias rn="rails new -d postgresql"
+```
+Donnera
+```
+$ rails new -d postgresql nom_de_mon_app
+```
+
 
 Modifier son Gemfile. Voici celui de Félix : 
 https://github.com/felhix/cheat_sheets/blob/master/Ruby/Gemfile.rb
@@ -43,16 +53,4 @@ $ bundle install
 
 Puis se mettre dedans (sinon dur de travailler dessus) :
 
-```javascript
-var s = "JavaScript syntax highlighting";
-alert(s);
-```
-```ruby
-rails new appname --skip-sprockets
-@event=Event.new
-`````
-
-
-```command
-$rails g controller
 
