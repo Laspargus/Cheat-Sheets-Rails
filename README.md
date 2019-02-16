@@ -349,4 +349,118 @@ Dans le model User, tu dis que ce dernier has_many sent_messages. Ces messages e
 
 
 
+### Modele : Les attributs optionnels 
+
+Imaginons que tu veuilles une relation 1-N entre un author et un book mais avec la possibilité qu'un book soit créé sans author. En temps normal, impossible : ActiveRecords refuserait et te renverrait des gros ROLLBACK. 
+Pour remédier à ceci, optional est là pour toi 
+```ruby
+class Book < ApplicationRecord
+  belongs_to :author, optional: true
+end
+```
+
+### Modele :  Dependent
+Dans certains cas, les associations entre tables de ta BDD sont très forts. Par là, je veux dire que si un objet disparaît, l'existence des objets qui lui sont liés n'a peut-être plus de sens et il serait préférable qu'ils disparaissent aussi pour ne pas polluer ta BDD. Un exemple ? Les RDV entre patients et docteurs. Si un docteur vient à demander à sortir de ta BDD, il faut probablement supprimer tous les appointments où il apparaît (et bien sûr prévenir les patients). C'est le rôle de dependent: :destroy d'effectuer cette suppression automatiquement.
+```ruby
+class Doctors < ApplicationRecord
+  has_many :appointments, dependent: :destroy
+end
+```
+
+
+### Modele : les validates
+
+Prenons l'exemple de l’e-mail : il faut qu'il soit impossible de créer un utilisateur en base sans e-mail.  Eh bien avec les lignes suivantes, en haut du model User, c'est possible de l'imposer :
+```ruby
+class User < ApplicationRecord
+  validates :email, presence: true
+end
+```
+#### Valider l'unicité d'un attribut
+
+Restons sur les e-mails : tu n'as pas envie que deux utilisateurs puissent s'inscrire avec le même email (sinon tu vas les confondre, ils vont reset leurs mots de passe entre eux, etc.). Pour ceci, rien de plus simple :
+
+```ruby
+class User < ApplicationRecord
+  validates :email, uniqueness: true
+end
+```
+
+#### Le format
+
+Encore un exemple applicable aux e-mails ! Pour le moment, si l'on fait validates :email, uniqueness: true, presence: true, il est possible pour un utilisateur de s'enregistrer avec l'email "coucou123", ce qui n'est pas un e-mail valide. On peut rajouter une validation de format à cet attribut :
+
+```ruby
+class User < ApplicationRecord
+  validates :email,
+    presence: true,
+    uniqueness: true,
+    format: { with: /\A[^@\s]+@([^@\s]+\.)+[^@\s]+\z/, message: "email adress please" }
+end
+```
+
+#### Longueur
+
+Des fois, tu veux imposer un certain nombre de caractères. Par exemple tu veux que ton mot de passe fasse 6 caractères minimum, ou que le title de ton article n'en fasse pas plus de 140. Tu peux valider la length de tes attributs :
+```ruby
+class Person < ApplicationRecord
+  validates :name, length: { minimum: 2 }
+  validates :bio, length: { maximum: 500 }
+  validates :password, length: { in: 6..20 }
+  validates :registration_number, length: { is: 6 }
+end
+```
+
+#### Les méthodes d'instance
+
+Pour vérifier que la date de rendez-vous n'est pas encore passé par exemple
+```ruby
+class Appointment < ApplicationRecord
+ validate : is_not_past
+end
+```
+/!\ Pour vérifier une méthode. Validate est au singulier.
+
+La méthode ```ìs_not_past``` vérifie que l'évènement est dans le futur :
+
+```ruby
+def is_not_past
+		if self.start_date < Time.now
+			self.errors.add(:start_date, "Your event is already past")
+		end
+	end
+  ```
+  
+####  Les callbacks
+ 
+Un callback est une action que tu souhaites réaliser à un instant précis lorsque tu appelles ton model. Voici un exemple de moment où tu peux appeler les callbacks :
+
+Juste AVANT la sauvegarde en BDD d'une instance de ton model ;
+Juste APRES la sauvegarde en BDD d'une instance de ton model ;
+Juste APRES la mise à jour en BDD d'une instance de ton model ;
+
+
+Prenons l'exemple d'un e-mail de bienvenue que tu aimerais bien envoyer à la création de ton utilisateur. Tu pourrais mettre dans ton controller :
+```ruby 
+def create_user
+  user = User.create(form_params)
+  user.send_welcome_email
+end 
+```
+
+Encore une fois, ce n'est pas au controller de faire ceci. Pourquoi ? Car l'action est intimement liée à la sauvegarde en BDD et donc au taff du model : autant qu'il le prenne en charge. Sans compter que plusieurs controllers pourraient avoir à créer des User : il faudrait alors à chaque fois rajouter cette ligne d'envoi d'e-mail et là, c'est plus DRY du tout. 
+On va donc implémenter un callback after_create pour envoyer un email de bienvenue à chaque sauvegarde en BDD d'un utilisateur :
+
+```ruby
+class User < ActiveRecord
+  after_create :send_welcome_email
+
+  def send_welcome_email
+    # le code qui envoit l'email
+  end
+
+end
+```
+
+
 
