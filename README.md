@@ -6,10 +6,14 @@
 
 Commencer par créer une nouvelle appli rails :
 
-```$ rails new nom_de_mon_app```
+```
+$ rails new nom_de_mon_app
+```
 Cela va créer un nouveau dossier Rails nommé my_first_app. Tu n'as plus qu'a te déplacer dans ce répertoire et lancer la fameuse commande :
 
-```$ bundle install```
+```
+$ bundle install
+```
 
 Puis se mettre dedans (sinon dur de travailler dessus) :
 
