@@ -462,5 +462,45 @@ class User < ActiveRecord
 end
 ```
 
+#### Les routes 
+--------------------------------------
 
+Un utilisateur navigue et interagit avec un site web en effectuant des requêtes. Une requête est définie par un verbe GET/POST/PUT/etc. et une URL. Le rôle du routeur (dans Rails, il s'agit du fichier routes.rb) est de rediriger une requête vers la méthode d'un controller de l'application.
 
+Faire une route c'est comme ça :
+```ruby
+get '/static_pages/contact', to: 'controller#method'
+```
+```$ rails routes``` te servira beaucoup, notamment pour récupérer le prefix de tes routes.
+
+Les routes dynamiques peuvent être faites en ajoutant une variable dans la route avec un :, par exemple :
+```ruby
+get '/users/:id', to: 'controller#method'
+```
+Au final, une route dynamique contient de l'information (la variable) que tu peux récupérer ensuite dans le controller via le hash params. Dans l'exemple ci-dessus, si on tape l'URL "/users/123" on aurait params[:id] qui serait égal à "123".
+
+#### Les liens
+
+##### Le helper
+Un helper est une méthode spécifique à Rails qui va t'aider d'une façon où d'une autre. Ici, le helper link_to est une méthode que tu vas pouvoir mettre dans une view sous le format :
+```ruby 
+<%= link_to "clique ici", le_fameux_path %>
+```
+Quand il va la lire, elle va se transformer ainsi avant d'être envoyée au navigateur :
+```html
+<a href="url_liée_au_path_saisi_dans_ton_link_to">clique ici</a>
+```
+
+Pour pointer vers des URLs dynamiques, passe les paramètres dynamiques dans ton path. year_month_day_path(@year.id, @month.id, @day.id) pointera vers l'URL : /years/:year_id/months/:month_id/days/:id
+
+Pour créer un boutton avec une classe bootstrap
+```ruby
+<%= link_to "Create New Event", new_event_path, class:"btn btn-success" %>
+```
+
+Pour créer un lien sur une image ou un div avec le helper 
+```ruby 
+<%= link_to 'Mon lien',  users_path do %>
+    <div>YOUR CONTENT</div>
+<% end %>
+```
