@@ -487,7 +487,7 @@ Un helper est une méthode spécifique à Rails qui va t'aider d'une façon où 
 <%= link_to "clique ici", le_fameux_path %>
 ```
 Quand il va la lire, elle va se transformer ainsi avant d'être envoyée au navigateur :
-```html
+```ruby
 <a href="url_liée_au_path_saisi_dans_ton_link_to">clique ici</a>
 ```
 
@@ -709,35 +709,35 @@ Les champs du formulaire sont ensuite disponibles dans le controller via le hash
 #### Les Helpers 
 
 
-Nous allons apprendre à changer un '''User.find_by(id: session[:user_id])''' en un plus simple '''current_user''' avec deux raisons en tête :
+Nous allons apprendre à changer un ```User.find_by(id: session[:user_id])``` en un plus simple ```current_user``` avec deux raisons en tête :
 
 En Rails, c'est le mal de faire un appel au model (= une requête SQL) dans une vue. C'est le rôle du controller ! Le moindre find dans la view et c'est -30 points en test technique.
 
 En Rails on aime le code bien DRY et bien lisible. current_user c'est très lisible et plus court que l'autre pâté.
-Pour refactorer (= condenser) de cette façon notre code, nous allons passer par un helper. Les helpers se rangent dans le dossier '''app/helpers/''' : ils ont pour mission de créer des méthodes pour remplacer les bouts de code qu'on utilise fréquemment. 
+Pour refactorer (= condenser) de cette façon notre code, nous allons passer par un helper. Les helpers se rangent dans le dossier ```app/helpers/```  : ils ont pour mission de créer des méthodes pour remplacer les bouts de code qu'on utilise fréquemment. 
 Tout ce que tu as à faire, c'est de mettre dans ton controller :
 
-'''ruby
+```ruby
 class TonController < ApplicationController
   include TonHelper
 end
-'''
+```
 
 TonHelper correspond au fichier '''app/helpers/ton_helper.rb''' qui devrait ressembler à ceci :
-'''ruby
+```ruby
 module TonHelper
   def some_method
     # une méthode et son code
   end
 end
-'''
+```
 
 
-Si tu es perspicace, tu auras noté que chaque controller commence par la ligne '''class TonController < ApplicationController''' : en fait ils héritent tous de ApplicationController ! Au final, c'est un peu le controller ultime : tout ce qui est écrit dedans, tu peux considérer qu'il est écrit dans chaque controller.
+Si tu es perspicace, tu auras noté que chaque controller commence par la ligne ```class TonController < ApplicationController``` : en fait ils héritent tous de ApplicationController ! Au final, c'est un peu le controller ultime : tout ce qui est écrit dedans, tu peux considérer qu'il est écrit dans chaque controller.
 
-Donc une fois la ligne rajoutée, il faut créer un fichier '''app/helpers/sessions_helper.rb''' et y mettre les lignes suivantes :
+Donc une fois la ligne rajoutée, il faut créer un fichier ```app/helpers/sessions_helper.rb``` et y mettre les lignes suivantes :
 
-'''ruby
+```ruby
 module SessionsHelper
    def current_user
     User.find_by(id: session[:user_id])
@@ -747,7 +747,7 @@ module SessionsHelper
     session[:user_id] = user.id
   end
 end
-'''
+```
 
 Et voilà ! Maintenant tu peux appeler current_user dans n'importe quel controller ou view, et cette méthode te retournera l'instance de User contenant les infos de ton utilisateur connecté.
 
@@ -781,15 +781,16 @@ class TonController < ApplicationController
 Grâce à ce magnifique callback, à chaque fois que la méthode index de ton controller est appelée, la méthode authenticate_user va être exécutée en amont. Elle filtrera les utilisateurs non connectés pour les rediriger vers la page login : en quelques lignes tu viens de sécuriser ton application !
 
 /!\
-Tu peux stocker des informations au sein du hash '''session'''. Son contenu est conservé jusqu'à fermeture du navigateur.
+Tu peux stocker des informations au sein du hash
+```session```.Son contenu est conservé jusqu'à fermeture du navigateur.
 
-Pour gérer la connexion / déconnexion des utilisateurs à leur compte, il faut créer un controller '''sessions_controller''' contenant les méthodes '''#new''', '''#create''' et '''#destroy'''.
+Pour gérer la connexion / déconnexion des utilisateurs à leur compte, il faut créer un controller ```sessions_controller``` contenant les méthodes ```#new```, ```#create``` et ```#destroy```.
 
-Ces méthodes vont permettre de stocker l'id de l'utilisateur connecté dans '''session[:user_id]'''
+Ces méthodes vont permettre de stocker l'id de l'utilisateur connecté dans ```session[:user_id]```
 
-Les helpers se rangent dans le dossier '''app/helpers/''' : ils ont pour mission de créer des méthodes pour remplacer les bouts de code qu'on utilise fréquemment. Par exemple, le fait de récupérer l'identité de l'utilisateur connecté avec '''current_user'''.
+Les helpers se rangent dans le dossier ```app/helpers/``` : ils ont pour mission de créer des méthodes pour remplacer les bouts de code qu'on utilise fréquemment. Par exemple, le fait de récupérer l'identité de l'utilisateur connecté avec ```current_user```.
 
-Les helpers utilisés dans de nombreux controllers peuvent être rajoutés à ApplicationController via un '''include TonHelper'''.
+Les helpers utilisés dans de nombreux controllers peuvent être rajoutés à ApplicationController via un ```include TonHelper```.
 
-Le callback before_action :authenticate_user, only: [:index] permet d'exécuter la méthode authenticate_user AVANT une méthode du controller (ici la méthode index).
+Le callback before_action ```:authenticate_user, only: [:index] ``` permet d'exécuter la méthode authenticate_user AVANT une méthode du controller (ici la méthode index).
 
