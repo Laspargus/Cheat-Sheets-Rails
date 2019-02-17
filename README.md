@@ -794,3 +794,206 @@ Les helpers utilisés dans de nombreux controllers peuvent être rajoutés à Ap
 
 Le callback before_action ```:authenticate_user, only: [:index] ``` permet d'exécuter la méthode authenticate_user AVANT une méthode du controller (ici la méthode index).
 
+### ActionMailer
+
+L'Action Mailer est organisé en plusieurs éléments au sein d'une app Rails :
+
+Des mailers, qui sont ni plus ni moins que des sortes de controllers appliqués aux e-mails. Tout comme les controllers "normaux", ils contiennent des méthodes qui vont faire des appels à la BDD (via les models) et ensuite envoyer des e-mails (au lieu d'envoyer des pages web à des navigateurs).
+
+Des views, qui sont des sortes de templates des e-mails à envoyer. Tout comme les views de ton site, elles sont personnalisées grâce à du code Ruby inclus dedans (pour rajouter un nom, un e-mail, le contenu d'un objet récupéré en BDD, etc.). Il existe deux types de views : les .text.erb et les .html.erb car on peut envoyer des e-mails au format HTML comme au format text.
+
+#### Action Mailer : Le premier mailer
+
+On va générer un mailer avec ```$ rails g mailer UserMailer```. On l'a appelé UserMailer dans l'idée qu'à terme, il pourrait gérer tous les e-mails à destination des utilisateurs. On pourrait aussi avoir un AdminMailer qui enverrait les e-mails aux gestionnaires du site.
+
+Maintenant, jette un œil au mailer que tu viens de générer dans app/mailers/user_mailer.rb : il est vide mais hérite de ApplicationMailer que tu pourras retrouver à app/mailers/application_mailer.rb.
+
+On va éditer le mailer pour rajouter une méthode dont le rôle sera simple : envoyer un e-mail de bienvenue à tous les utilisateurs s'inscrivant sur notre site. Rajoute donc les lignes suivantes :
+
+```ruby
+class UserMailer < ApplicationMailer
+  default from: 'no-reply@monsite.fr'
+ 
+  def welcome_email(user)
+    #on récupère l'instance user pour ensuite pouvoir la passer à la view en @user
+    @user = user 
+
+    #on définit une variable @url qu'on utilisera dans la view d’e-mail
+    @url  = 'http://monsite.fr/login' 
+
+    # c'est cet appel à mail() qui permet d'envoyer l’e-mail en définissant destinataire et sujet.
+    mail(to: @user.email, subject: 'Bienvenue chez nous !') 
+  end
+end
+```
+
+La première ligne permet de définir la valeur de default[:from]. Le hash default permet de définir tout un ensemble de valeurs par défaut : celles-ci sont écrasées si la méthode d'envoi d’e-mail définit une valeur autre. Ici, l'objectif est que nos e-mails affichent toujours une adresse d’e-mail d'envoi : soit celle définie par la méthode du mailer, soit, à défaut, no-reply@monsite.fr.
+
+
+#### Action Mailer : View
+
+On va créer le template de notre e-mail de bienvenue. 
+Pour ça, crée un fichier welcome_email.html.erb dans app/views/user_mailer/. Bien évidemment le nom est extrêmement important : il doit être identique à celui de la méthode welcome_email et placé dans le dossier views/user_mailer/ qui contient tous les templates e-mails relatifs au mailer UserMailer. Le contenu du template sera le suivant :
+```ruby
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>Salut <%= @user.name %> et bienvenue chez nous !</h1>
+    <p>
+      Tu t'es inscrit sur monsite.fr en utilisant l'e-mail suivant : <%= @user.email %>.
+    </p>
+    <p>
+      Pour accéder à ton espace client, connecte-toi via : <%= @url %>.
+    </p>
+    <p> À très vite sur monsite.fr !
+  </body>
+</html>
+```
+
+####  Action Mailer : envoie automatique
+
+
+- Si tu veux envoyer un email à la création d'un utilisateur, c'est un callback ```after_create``` dans le model ```User```
+- Si tu veux envoyer un email quand un utilisateur vient de prendre un RDV sur Doctolib, c'est un callback ```after_create``` à la création d'un ```Appointment```
+- Si tu veux envoyer une newsletter hebdomadaire, c'est un Service qui tourne de manière hebdomadaire (on verra comment faire des services cette semaine 😉)
+
+Dans notre cas, on veut envoyer un e-mail juste après la création d'un utilisateur : il serait logique que ce travail revienne au model car 1) c'est lui qui crée l'utilisateur donc autant qu'il fasse les 2 actions et 2) Fat model Skinny controller, duuuuuude ! 🕺
+
+Du coup, va dans ton model User et rajoute la ligne suivante :
+
+```ruby
+class User < ApplicationRecord
+  after_create :welcome_send
+
+  def welcome_send
+    UserMailer.welcome_email(self).deliver_now
+  end
+
+end
+```
+
+
+On a utilisé un callback qui permet juste après l'inscription en base d'un nouvel utilisateur, d'appeler la méthode d'instance welcome_send. Celle-ci ne fait qu'appeler le mailer UserMailer en lui faisant exécuter welcome_email avec, pour seule entrée, l'instance créée (d'où le self).
+
+À noter qu'on rajoute ensuite un deliver_now pour envoyer immédiatement l’e-mail. Il est possible d'utiliser un deliver_later mais son fonctionnement en production est moins évident : il faut savoir gérer les tâches asynchrones avec Active Job…
+
+
+#### Action Mailer : config en dev
+
+Pour ça on va utiliser une gem assez cool qui s'appelle [Letter Opener](https://github.com/ryanb/letter_opener). Son fonctionnement ? Dès qu'un e-mail doit être envoyé par ton app Rails, celui-ci est automatiquement ouvert dans ton navigateur web.
+
+Mets letter_opener dans le groupe de développement de ton Gemfile puis ```bundle install```
+Maintenant va dans config/environments/development.rb (fichier contenant les paramètres de ton environnement de développement) et colle les lignes ```config.action_mailer.delivery_method = :letter_opener``` et ```config.action_mailer.perform_deliveries = true```
+
+#### Action Mailer : config en prod
+
+Nous allons utiliser [Sendgrid](https://app.sendgrid.com/guide/integrate/langs/smtp).
+Un fois la clefs API récupérée :
+
+- Crée un fichier ```.env``` à la racine de ton application.
+- Ouvre-le et écris dedans les informations suivantes : ```SENDGRID_LOGIN='apikey'``` et ```SENDGRID_PWD='ta_clef_API'``` en remplaçant bien sûr ta_clef_API par la clef que tu viens de générer. Elle est au format ```SG.sXPeH0BMT6qwwwQ23W_ag.wyhNkzoQhNuGIwMrtaizQGYAbKN6vea99wc8```. N'oublie pas les guillemets !
+Rajoute ```gem 'dotenv-rails'``` à ton Gemfile et fait le ```$ bundle install```
+Et l'étape cruciale qu'on oublie trop souvent : ouvre le fichier ```.gitignore``` à la racine de ton app Rails et écris ```.env``` dedans.
+
+ Il ne te reste qu'à entrer les configurations SMTP de SendGrid dans ton app. Va dans /config/environment.rb et rajoute les lignes suivantes :
+```ruby
+ActionMailer::Base.smtp_settings = {
+  :user_name => ENV['SENDGRID_LOGIN'],
+  :password => ENV['SENDGRID_PWD'],
+  :domain => 'monsite.fr',
+  :address => 'smtp.sendgrid.net',
+  :port => 587,
+  :authentication => :plain,
+  :enable_starttls_auto => true
+}
+```
+
+### Devise
+
+Pour installer Devise, il faut d'abord commencer par mettre la gem dans le Gemfile, puis de faire bundle install.
+
+Ensuite, on va devoir installer Devise avec la commande suivante :
+
+```$ rails generate devise:install```
+
+Ce qui a pour effet de créer deux fichiers :
+
+```config/initializers/devise.rb``` : le fichier de configuration de Devise. On s'en servira par exemple pour paramétrer le service que l'on va utiliser pour les envois d'emails
+```config/locales/devise.en.yml``` : un fichier contenant les messages d'erreur de Devise. Tu pourras utiliser ses version françaises quand tu seras plus à l'aise
+
+#### Devise - Mail en dévelopement
+
+Puis après avoir créé les fichiers, il faut préciser à Devise comment envoyer les mails en développement. Donc dans le fichier ```config/environments/development.rb``` mets-donc la ligne suivante :
+
+```ruby config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }```
+
+#### Devise - Modele
+
+Devise utilise comme Rails un générateur qui va nous mâcher le travail. Pour dire à Devise que tel model va être en mode Devise (avec la notion de session, login, etc), on fera rails g devise model. La majorité du temps cela concerne les utilisateurs (tout site), avec quelques exceptions quand cela concerne plutôt les admins (un blog sans gestion d'utilisateur). Ainsi, pour une app normale dans laquelle nous voulons avoir Devise branchée sur les utilisateurs, tu feras :
+
+```$ rails g devise user```
+
+Cela va créer et modifier quelques fichiers, mais trois nous intéressent beaucoup : une fichier de migration, un fichier de model, et une modification des routes.
+
+###### Le fichier de migration
+Voici le fichier de migration que Devise va te générer :
+
+```ruby
+# frozen_string_literal: true
+
+class DeviseCreateUsers < ActiveRecord::Migration[5.2]
+  def change
+    create_table :users do |t|
+      ## Database authenticatable
+      t.string :email,              null: false, default: ""
+      t.string :encrypted_password, null: false, default: ""
+
+      ## Recoverable
+      t.string   :reset_password_token
+      t.datetime :reset_password_sent_at
+
+      ## Rememberable
+      t.datetime :remember_created_at
+
+      ## Trackable
+      # t.integer  :sign_in_count, default: 0, null: false
+      # t.datetime :current_sign_in_at
+      # t.datetime :last_sign_in_at
+      # t.inet     :current_sign_in_ip
+      # t.inet     :last_sign_in_ip
+
+      ## Confirmable
+      # t.string   :confirmation_token
+      # t.datetime :confirmed_at
+      # t.datetime :confirmation_sent_at
+      # t.string   :unconfirmed_email # Only if using reconfirmable
+
+      ## Lockable
+      # t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts
+      # t.string   :unlock_token # Only if unlock strategy is :email or :both
+      # t.datetime :locked_at
+
+
+      t.timestamps null: false
+    end
+
+    add_index :users, :email,                unique: true
+    add_index :users, :reset_password_token, unique: true
+    # add_index :users, :confirmation_token,   unique: true
+    # add_index :users, :unlock_token,         unique: true
+  end
+end
+```
+
+C'est une migration pour créer une table users, puis lui ajouter les attributs qui vont permettre à Devise de paramétrer. que Devise va gérer. De base, Devise ne gère que Database Authenticatable, Registerable, Recoverable, Rememberable, et Validatable. Les autres attributs sont en gris et tu n'as qu'à décommenter les lignes qui t'intéressent. 
+
+---
+Mais dis-donc Jamy, comment on fait si l'on a déjà créé le model User ?
+Devise est plutôt intelligente, puisque elle va changer ta migration de create_table à change_table. Il y aura deux détails à gérer :
+
+Si jamais tu as déjà dans ta table users une colonne que Devise utilise (email, encrypted_password, etc), la migration plantera puisque Devise les ajoute aussi (c'est comme si tu avais deux colonnes email, et ça ne marche pas)
+En l'état il n'est pas possible de rollback ta migration. Il te faudra ajouter à la main la partie self.down, avec des : remove_column ou des remove_index pour que tout aille bien
+---
