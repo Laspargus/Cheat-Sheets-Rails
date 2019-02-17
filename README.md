@@ -685,10 +685,111 @@ Example de formualire simple
   <input type="text" name="gossip_text">
   <input type="submit" value="Valider">
 </form>
+```
 
 Les champs du formulaire sont ensuite disponibles dans le controller via le hash params
 
 
-## A FAIRE LE FORMULAIRE FORMTAG
-http://thehackingproject.herokuapp.com/dashboard/weeks/5/days/2?locale=fr
-https://guides.rubyonrails.org/form_helpers.html
+### Formulaire avec Formtag et Bootstrap
+
+```ruby
+<%= form_tag attendnace_path(@event) do %>
+
+ 	<div class="form-group">
+		<label>Title</label>
+		<%= f.text_field :title , class:'form-control'%>
+    	</div>
+        
+	<div class="form-group">
+	       <label>Description</label>
+		<%= f.text_field :description , class:'form-control'%>
+	</div>
+<% end %>
+```
+#### Les Helpers 
+
+
+Nous allons apprendre à changer un '''User.find_by(id: session[:user_id])''' en un plus simple '''current_user''' avec deux raisons en tête :
+
+En Rails, c'est le mal de faire un appel au model (= une requête SQL) dans une vue. C'est le rôle du controller ! Le moindre find dans la view et c'est -30 points en test technique.
+
+En Rails on aime le code bien DRY et bien lisible. current_user c'est très lisible et plus court que l'autre pâté.
+Pour refactorer (= condenser) de cette façon notre code, nous allons passer par un helper. Les helpers se rangent dans le dossier '''app/helpers/''' : ils ont pour mission de créer des méthodes pour remplacer les bouts de code qu'on utilise fréquemment. 
+Tout ce que tu as à faire, c'est de mettre dans ton controller :
+
+'''ruby
+class TonController < ApplicationController
+  include TonHelper
+end
+'''
+
+TonHelper correspond au fichier '''app/helpers/ton_helper.rb''' qui devrait ressembler à ceci :
+'''ruby
+module TonHelper
+  def some_method
+    # une méthode et son code
+  end
+end
+'''
+
+
+Si tu es perspicace, tu auras noté que chaque controller commence par la ligne '''class TonController < ApplicationController''' : en fait ils héritent tous de ApplicationController ! Au final, c'est un peu le controller ultime : tout ce qui est écrit dedans, tu peux considérer qu'il est écrit dans chaque controller.
+
+Donc une fois la ligne rajoutée, il faut créer un fichier '''app/helpers/sessions_helper.rb''' et y mettre les lignes suivantes :
+
+'''ruby
+module SessionsHelper
+   def current_user
+    User.find_by(id: session[:user_id])
+  end
+
+   def log_in(user)
+    session[:user_id] = user.id
+  end
+end
+'''
+
+Et voilà ! Maintenant tu peux appeler current_user dans n'importe quel controller ou view, et cette méthode te retournera l'instance de User contenant les infos de ton utilisateur connecté.
+
+
+#### Les callbacks
+
+La bonne façon de le présenter, c'est de faire ça dans une méthode privée authenticate_user, et de l'appeler EN AMONT de la méthode du controller, grâce à un callback before_action. Voici le résultat :
+
+```ruby
+class TonController < ApplicationController
+  before_action :authenticate_user, only: [:index]
+
+  def index
+    # on code quelque chose qui permet d'afficher le dashboard de l'utilisateur
+  end
+  ```
+  On crée une méthode private :
+  
+  ```ruby
+  private
+
+  def authenticate_user
+    unless current_user
+      flash[:danger] = "Please log in."
+      redirect_to new_session_path
+    end
+  end
+```
+
+
+Grâce à ce magnifique callback, à chaque fois que la méthode index de ton controller est appelée, la méthode authenticate_user va être exécutée en amont. Elle filtrera les utilisateurs non connectés pour les rediriger vers la page login : en quelques lignes tu viens de sécuriser ton application !
+
+/!\
+Tu peux stocker des informations au sein du hash '''session'''. Son contenu est conservé jusqu'à fermeture du navigateur.
+
+Pour gérer la connexion / déconnexion des utilisateurs à leur compte, il faut créer un controller '''sessions_controller''' contenant les méthodes '''#new''', '''#create''' et '''#destroy'''.
+
+Ces méthodes vont permettre de stocker l'id de l'utilisateur connecté dans '''session[:user_id]'''
+
+Les helpers se rangent dans le dossier '''app/helpers/''' : ils ont pour mission de créer des méthodes pour remplacer les bouts de code qu'on utilise fréquemment. Par exemple, le fait de récupérer l'identité de l'utilisateur connecté avec '''current_user'''.
+
+Les helpers utilisés dans de nombreux controllers peuvent être rajoutés à ApplicationController via un '''include TonHelper'''.
+
+Le callback before_action :authenticate_user, only: [:index] permet d'exécuter la méthode authenticate_user AVANT une méthode du controller (ici la méthode index).
+
