@@ -477,6 +477,13 @@ Les routes dynamiques peuvent être faites en ajoutant une variable dans la rout
 ```ruby
 get '/users/:id', to: 'controller#method'
 ```
+
+La home page 
+```ruby
+root 'controller#action'
+```
+
+
 Au final, une route dynamique contient de l'information (la variable) que tu peux récupérer ensuite dans le controller via le hash params. Dans l'exemple ci-dessus, si on tape l'URL "/users/123" on aurait params[:id] qui serait égal à "123".
 
 #### Les liens
@@ -1138,3 +1145,10 @@ devise_for :users, controllers: { registrations: 'registrations' }
 ```
 
 Ainsi, le controller ```app/controllers/registrations_controller.rb``` sera le controller de Devise pour tout ce qui concerne les registrations.
+
+
+### Active Storage
+
+Pour ajouter un avatar à l'utilisateur ou une image à nos évènements. 
+
+
