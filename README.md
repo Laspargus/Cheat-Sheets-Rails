@@ -1149,7 +1149,55 @@ Ainsi, le controller ```app/controllers/registrations_controller.rb``` sera le c
 
 ### Active Storage
 
-Pour ajouter un avatar à l'utilisateur ou une image à nos évènements. 
+permet d'ajouter un avatar à l'utilisateur ou une image à nos évènements. 
 
-A venir
+Pour installer Active Storage sur ton app, lance ```$ rails active_storage:install``` Cette commande a pour effet de générer une migration permettant de créer 2 tables dans ta BDD :
+
+```active_storage_blobs``` : qui contient toutes les métadonnées des fichiers uploadés (taille, nom, type, etc.).
+```active_storage_attachments``` : une table jointe entre tes modèles et les uploads.
+
+Active Storage est installé : il faut à présent être capable de lier un fichier qu'on upload avec un objet de notre BDD.
+```ruby
+class User < ApplicationRecord
+  has_one_attached :avatar
+end
+```
+
+
+Pour afficher ton avatar sur le site ou dans ta navbar, tu peux utiliser le code suivant :
+
+```ruby
+<%if user_signed_in?%>
+	<%if current_user.avatar.attached? %>
+             <%= image_tag current_user.avatar, alt: 'avatar', size: '30x30' %>
+ 	<%end%>
+ <%end%>
+ ```
+               
+
+##### Active Storage & Devise
+
+Si tu souhaites ajouter le boutton d'upload d'image au sein d'un formulaire Devise, il faut réaliser deux chose : 
+1. Ajouter cette ligne dans le formulaire de la vue :
+```ruby 
+<%= form.file_field :avatar %>
+```
+
+2. Ajouter le paramètre ```:avatar``` dans la liste des attribut autorisés par Device depuis le fichier ```application_controller.rb````
+
+Voic le code avec les paramètre username, first_name, last_name et avatar :
+
+```ruby 
+class ApplicationController < ActionController::Base
+	  protect_from_forgery with: :exception
+
+  before_action :sanitize_devise_params, if: :devise_controller?
+
+  def sanitize_devise_params
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:first_name, :last_name, :username, :avatar])
+  end
+end
+```
+
+
 
