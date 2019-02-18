@@ -1199,5 +1199,97 @@ class ApplicationController < ActionController::Base
 end
 ```
 
+Si tu ne souhaites pas utiliser les formulaires Devise pour ajouter une image (ajout d'illustration d'un évènement par exemple), voii la marche à suivre. 
+
+1. Commence par créer un controller (il sera lié à ton formualaire)
+```ruby
+$ rails g controller avatars new create
+ ```
+
+Pour rappel, cette commande va créer un controller 'avatars' avec deux méthodes new & create ainsi que les vues associées. 
+La méthode create aura pour rôle d'ajouter un avatar à un user donné.
+```ruby
+class AvatarsController < ApplicationController
+  def create
+    @user = User.find(params[:user_id])
+    @user.avatar.attach(params[:avatar])
+    redirect_to(user_path(@user))
+  end
+end
+```
+
+Explications du code : la ligne ```ruby @user = User.find(params[:user_id])``` nous permet d'identifier l'utilisateur concerné. 
+Ensuite nous lui attribuons l'avatar dont la référence est contenue dans ```ruby params[:avatar]``` avec la commande ```ruby @user.avatar.attach(params[:avatar])```. 
+Une fois cette association faite, on redirige vers la page show de cet utilisateur en suivant la route dynamique user_path(@user).
+
+Évidemment, pour que cette méthode create fonctionne (notamment la partie avec params[:user_id]), il faut une route adéquate. 
+Cette route sera, sans surprise ```ruby resources :avatars, only: [:create]```. 
+
+Mais par contre, elle doit contenir l'information "sur quel utilisateur travaille-t-on ?", autrement dit, elle doit contenir l'id d'un user : on va donc imbriquer la route dans le resources :users pour lui rajouter un /users/user_id/ en amont. 
+Ça donne :
+
+```ruby 
+Rails.application.routes.draw do
+  resources :users, only: [:show] do
+    resources :avatars, only: [:create]
+  end
+end
+```
+
+Si tu tapes maintenant un $rails routes, tu vois apparaître les 2 routes qui vont te servir : la page show des users en GET et la page create des avatars en POST. Et cette dernière est bien imbriquée avec un /users/user_id/. Illustration :
+
+```ruby 
+
+             Prefix Verb URI Pattern                                                                              Controller#Action
+             user_avatars POST /users/:user_id/avatars(.:format)                                                        avatars#create
+                     user GET  /users/:id(.:format)                                                                     users#show
+```
+
+Au top ! Il ne reste qu'à finaliser notre formulaire dans la view show.html.erb afin qu'il pointe vers la méthode !
+
+
+
+#### Active Storage en production
+
+Si tu vas dans les fichiers de configuration des environnements de développement ```config/environments/development.rb``` et production ```config/environments/production.rb```, tu verras qu'ils contiennent tous les deux cette ligne :
+
+```ruby
+config.active_storage.service = :local
+```
+
+C'est elle qui indique que, par défaut, Active Storage stockera les fichiers directement sur l'ordinateur qui fait tourner l'app Rails. En développement, pas de souci : ça stocke tout sur ton ordi et tu peux tester que tout marche. 
+
+Par contre en production, ça a ses limites : de nombreux services refuseront de faire fonctionner Active Storage de cette façon, car ils ne veulent pas se retrouver à stocker des fichiers (ça peut vite peser lourd les milliers de photos de profil de tes futurs utilisateurs).
+
+Chez Heroku, ils sont plutôt cools car ils mettent à ta disposition un disque dur éphémère : en gros, sans rien changer dans la configuration d'Active Storage (on reste en :local), ils acceptent les uploads de fichiers pour les sauver en local mais ceux-ci disparaîtront au bout de 24 h. C'est suffisant pour tester ton app… mais pas pour faire un produit pro.
+
+La solution la plus courante consiste à utiliser le service Amazon S3. 
+
+Une fois ta clefs API récupérée, va dans le fichier ```storage.yml``` : tu verras qu'il contient des configurations de bases pour les 3 prestataires recommandés par Rails. Dé-commente la partie qui concerne Amazon :
+
+```ruby
+amazon:
+	service: S3
+	access_key_id: ENV['AMAZON_ACCESS_KEY_ID']
+	secret_access_key: ENV['AMAZON_SECRET_ACCESS_KEY']
+	region: us-east-1 #a priori, si tu es en Europe, il faut mettre ici : eu-west-3
+	bucket: your_own_bucket #Mets ici le nom de ton bucket. Par exemple : prisme
+
+```
+Maintenant ajoute la ```gem 'dotenv-rails'```, puis ``` bundle install```
+
+
+Maintenant, crée un fichier .env, rajoute-le à ton .gitignore puis saisis dedans tes clefs d'API récupérée sur Amazon. Exemple :
+```ruby
+AMAZON_ACCESS_KEY_ID= 'AKIAKOB5SEYHW8APSIYQ'
+AMAZON_SECRET_ACCESS_KEY= 'vCxbJWzolEJCLqZ4zXcSBgT5i9mAQCYMSw1zXyu'
+```
+
+Ensuite, il faut également saisir tes clefs sur Heroku. 
+Tout est expliqué [ici](https://devcenter.heroku.com/articles/config-vars)
+
+À présent, pour indiquer à Active Storage de bosser via Amazon (et non plus en local), va dans ```ruby config/environments/production.rb ``` et change la ligne ```config.active_storage.service = :local``` en : ```config.active_storage.service = :amazon```
+
+Dernière étape indispensable pour que Amazon S3 fonctionne : rajoute à ton Gemfile ```gem "aws-sdk-s3",require: false``` puis ```bundle install```.
 
 
