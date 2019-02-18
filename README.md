@@ -1040,6 +1040,44 @@ Avec Devise, il est facile de générer les views que la gem va gérer, il suffi
 
 ```$ rails generate devise:views```
 
+Par défaut, les formulaires sont un peu moches (c'est peu dire). 
+
+Tu peux remplacer le formulaire registration#new par celui-ci :
+
+```ruby
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+      <br><br><br>
+      <%= form_for resource, as: resource_name, url: registration_path(resource_name), html: { class: "form-signin mt-3" } do |f| %>
+        <h1 class="h3 mb-3 font-weight-normal text-center">Sign up</h1>
+        <%= devise_error_messages! %>
+        <div class="form-group">
+          <%= f.label :email, "Email" %><br />
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
+        </div>
+        <div class="form-group">
+          <%= f.label :password %>
+          <% if @minimum_password_length %>
+          <em>(<%= @minimum_password_length %> characters minimum)</em>
+          <% end %><br />
+          <%= f.password_field :password, autocomplete: "new-password", class: "form-control" %>
+        </div>
+        <div class="form-group">
+          <%= f.label :password_confirmation %><br />
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control" %>
+        </div>
+        <div class="actions mt-5">
+          <%= f.submit "Sign up", class: "btn btn-lg btn-primary btn-block" %>
+        </div>
+      <% end %>
+      <%= render "devise/shared/links" %>
+    </div>
+  </div>
+</div>
+```
+
+
 
 Gràce à la méthode ```authenticate_user!```, il est aisé de restreindre une page pour les utilisateurs connectés. Va dans le ```home_controller```, puis ajoute en ligne 2 la ligne suivante :
 
