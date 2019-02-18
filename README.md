@@ -1151,4 +1151,5 @@ Ainsi, le controller ```app/controllers/registrations_controller.rb``` sera le c
 
 Pour ajouter un avatar à l'utilisateur ou une image à nos évènements. 
 
+A venir
 
