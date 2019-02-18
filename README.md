@@ -934,7 +934,7 @@ Puis après avoir créé les fichiers, il faut préciser à Devise comment envoy
 
 Devise utilise comme Rails un générateur qui va nous mâcher le travail. Pour dire à Devise que tel model va être en mode Devise (avec la notion de session, login, etc), on fera rails g devise model. La majorité du temps cela concerne les utilisateurs (tout site), avec quelques exceptions quand cela concerne plutôt les admins (un blog sans gestion d'utilisateur). Ainsi, pour une app normale dans laquelle nous voulons avoir Devise branchée sur les utilisateurs, tu feras :
 
-```$ rails g devise user```
+```$ rails g devise User```
 
 Cela va créer et modifier quelques fichiers, mais trois nous intéressent beaucoup : une fichier de migration, un fichier de model, et une modification des routes.
 
