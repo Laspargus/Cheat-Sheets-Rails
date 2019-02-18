@@ -1038,7 +1038,7 @@ Normalement les routes devraient t'afficher devise_for :users. Inspectons ceci a
 
 Avec Devise, il est facile de générer les views que la gem va gérer, il suffit de rentrer la ligne suivante :
 
-```$ rails generate devise:views users```
+```$ rails generate devise:views```
 
 
 Gràce à la méthode ```authenticate_user!```, il est aisé de restreindre une page pour les utilisateurs connectés. Va dans le ```home_controller```, puis ajoute en ligne 2 la ligne suivante :
