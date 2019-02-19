@@ -69,6 +69,19 @@ git remote add origin https://github.com/Laspargus/testtest.git
 git push -u origin master
 ```
 
+To remove a repository :
+
+```
+git remove rm origin
+```
+
+Pour visualiser les repo
+
+```
+git remote -v
+```
+
+
 
 ### Git push heroku master
 Maintenant il ne reste plus qu'à commiter, et pousser ça chez heroku.
