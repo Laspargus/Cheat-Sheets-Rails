@@ -1305,4 +1305,7 @@ Tout est expliqué [ici](https://devcenter.heroku.com/articles/config-vars)
 
 Dernière étape indispensable pour que Amazon S3 fonctionne : rajoute à ton Gemfile ```gem "aws-sdk-s3",require: false``` puis ```bundle install```.
 
+###A faire 
+pipeline image CSS
 
+background-image: url("home.jpg");
