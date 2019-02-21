@@ -1307,5 +1307,11 @@ Dernière étape indispensable pour que Amazon S3 fonctionne : rajoute à ton Ge
 
 ###A faire 
 pipeline image CSS
-
 background-image: url("home.jpg");
+stripe
+render/partials
+<%= render :partial => "cards/events_cards", :collection => @events, :as => :event %>
+
+
+
+
