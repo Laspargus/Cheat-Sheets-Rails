@@ -1283,8 +1283,8 @@ Une fois ta clefs API récupérée, va dans le fichier ```storage.yml``` : tu ve
 ```ruby
 amazon:
 	service: S3
-	access_key_id: ENV['AMAZON_ACCESS_KEY_ID']
-	secret_access_key: ENV['AMAZON_SECRET_ACCESS_KEY']
+	access_key_id: <%ENV['AMAZON_ACCESS_KEY_ID']%>
+	secret_access_key: <%ENV['AMAZON_SECRET_ACCESS_KEY']%>
 	region: us-east-1 #a priori, si tu es en Europe, il faut mettre ici : eu-west-3
 	bucket: your_own_bucket #Mets ici le nom de ton bucket. Par exemple : prisme
 
