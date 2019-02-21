@@ -72,7 +72,7 @@ git push -u origin master
 To remove a repository :
 
 ```
-git remove rm origin
+git remote rm origin
 ```
 
 Pour visualiser les repo
