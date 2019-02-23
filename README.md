@@ -948,7 +948,8 @@ Ce qui a pour effet de créer deux fichiers :
 
 Puis après avoir créé les fichiers, il faut préciser à Devise comment envoyer les mails en développement. Donc dans le fichier ```config/environments/development.rb``` mets-donc la ligne suivante :
 
-```ruby config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }```
+```ruby 
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }```
 
 #### Devise - Modele
 
