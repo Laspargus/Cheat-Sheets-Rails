@@ -1335,3 +1335,11 @@ for  (var i = 0; i < collection.length; i++) {
 }};```
 
 
+
+# A FAIRE
+
+### FORM WITH
+ https://m.patrikonrails.com/rails-5-1s-form-with-vs-old-form-helpers-3a5f72a8c78a
+ 
+ ### AJAX FOR RAILS
+ http://thehackingproject.herokuapp.com/dashboard/weeks/8/days/3?locale=fr
