@@ -1300,17 +1300,212 @@ AMAZON_ACCESS_KEY_ID= 'AKIAKOB5SEYHW8APSIYQ'
 AMAZON_SECRET_ACCESS_KEY= 'vCxbJWzolEJCLqZ4zXcSBgT5i9mAQCYMSw1zXyu'
 ```
 
-Ensuite, il faut également saisir tes clefs sur Heroku. 
-Tout est expliqué [ici](https://devcenter.heroku.com/articles/config-vars)
-
 À présent, pour indiquer à Active Storage de bosser via Amazon (et non plus en local), va dans ```ruby config/environments/production.rb ``` et change la ligne ```config.active_storage.service = :local``` en : ```config.active_storage.service = :amazon```
 
 Dernière étape indispensable pour que Amazon S3 fonctionne : rajoute à ton Gemfile ```gem "aws-sdk-s3",require: false``` puis ```bundle install```.
 
+
+Ensuite, il faut également saisir tes clefs sur Heroku. 
+Tout est expliqué [ici](https://devcenter.heroku.com/articles/config-vars)
+
+### Les Services
+
+Les services sont une feature de Rails (pour changer) qui permettent d'y mettre du PORO (Plain Old Ruby Objects), c'est à dire du code Ruby, que tu pourras appeler où tu veux dans Rails. 
+
+Chaque fichier du dossier services invoque une seule class que tu pourras appeler librement dans ton application rails. 
+Ex avec une Class SayHello
+```ruby
+class SayHello
+  def perform
+    p "bonjour"
+  end
+end
+```
+
+En cas d'erreur, relancer spring avec ```$ bin/spring stop```
+
+
+Le fichier s'apelle  say_hello.rb et la classe SayHello. C'est (encore) une convention de Rails. Le nom du fichier doit être le snake_case du nom de la classe.
+Les services se rangent dans le dossier ```app/services/.``` Pour les appeler tu peux faire (quasiment partout dans ton app) : ```TonService.new.perform.```
+
+###Dotenv et clefs API
+
+####Komment que ça marche ?
+En gros on va mettre toutes les clés dans un fichier .env, puis on pourra les appeler en faisant ```ENV['NOM_DE_LA_CLÉ']``` dans notre programme Ruby. Puis afin d'éviter de pousser le bousin sur Github, on mettra le fichier ```.env``` dans notre ```.gitignore```
+
+Exemple avec un dossier Ruby simple
+Il faut commencer par créer un dossier avec nos fichiers, puis le lier à Github. Ne pas oublier d'installer la gem :
+
+```$ gem install dotenv```
+Créer un fichier .env qui contiendra nos clés d'APIs au format suivant :
+```ruby
+TWITTER_API_KEY="my-twitter-api-key"
+TWITTER_API_SECRET="shh-so-secret"
+```
+
+En appelant la gem dotenv, tout fichier Ruby dans le dossier pourra accéder à ces données. Voici un exemple de programme qui s'appelle kikou.rb et qui appelle les variables :
+
+#### Appelle la gem dotenv
+```require 'dotenv'```
+
+Ceci appelle le fichier ```.env ```grâce à la gem dotenv, et enregistre toutes les données enregistrées dans une hash ```ENV
+Dotenv.load```
+
+Il est très facile d'appeler les données sensibles du fichier ```.env```, par exemple là je vais afficher ```TWITTER_API_SECRET
+puts ENV['TWITTER_API_SECRET']```
+
+Et avant de faire un commit et de push sur Github, nous allons mettre le fichier .env dans le .gitignore. Ainsi, ce fichier ne sera pas push sur Github et il sera très facile d'y gérer nos clés d'API secrètes. Mettre la ligne suivante dans un fichier qui .gitignore :
+```
+.env
+```
+
+Et voilà, notre dossier devrait ressembler à ceci :
+```ruby
+└── TON_DOSSIER
+    ├── .env
+    ├── .gitignore
+    └── kikou.rb
+```
+    
+Exemple avec une app Rails
+Hyper simple, mettre dans les gems de development et tests :
+
+```gem 'dotenv-rails'```
+Puis créer un fichier .env dans lequel on mettra les variables. Et mettre .env dans le fichier .gitignore
+
+Et puis c'est tout ! Les variables sont appelées pendant le before_configuration, donc on peut faire notre ```ENV['TA_VARIABLE']``` quand on veut. 
+
+###STRIPE
+
+Rien de mieux que le petit tuto de Stripe
+https://stripe.com/docs/checkout/rails
+
+### HEROKU SCHEDULER
+Permet de 
+
+Dans ce tuto, Félix nous montre comment lancer des programmes en serveur via Ruby et Rails, et comment les programmer pour qu'ils tournent régulièrement.
+
+https://github.com/felhix/cheat_sheets/blob/master/Ruby/Scheduling_Tasks_Online.md
+
+
+
+###Intégrer un template Bootstrap
+
+
+Tous se passe dans l'Asset Pipeline, intégrer les templates dans le bon dossier etc... Tout un tas de choses un peu durs à comprendre au début, mais c'est pour ça qu'on est là ! Il y a plusieurs dossier assets dans votre app rails :
+
+- app/assets: La partie permettant de stocker le css qu'on écrit à la main. c'est à dire si l'on veut un partial pour écrire du css spécifique à une view, c'est ici qu'on le créera.
+- lib/assets: Ici on met nos librairie perso.
+- vendor/assets: Ici on intègre nos librairie externes, comme Bootstrap par exemple, c'est donc de ce dossier qu'on aura besoin pour notre template.
+
+On commence par afficher le code source de la homepage du template choisi.
+Ensuite récupère les librairies de ton templates dans le dossier assets/vendor de l'archive du template pour les copier dans vendor/assets sur ton app rails. Fais de même avec les répertoire css et js dans le dossier lib/assets.
+
+```ruby
+  ├── app
+  ├── bin
+  ├── config
+  ├── db
+  ├── lib
+  │   └── assets
+  │       ├── css [venant de l'archive du template]
+  │       └── js [venant de l'archive du template]
+  ├── log
+  ├── public
+  ├── storage
+  ├── test
+  ├── tmp
+  └── vendor
+      └── assets
+          └── [Intégralité des dossiers assets/vendor du template]
+	  
+```
+
+
+De base ton app rails va s'initialiser en checkant uniquement le app/assets, il faut donc lui faire comprendre que tu veux qu'elle recherche aussi dans vendor et lib. Pour cela il faut aller dans ```config/initializers/assets.rb``` et y ajouter ces lignes:
+```ruby
+Rails.application.config.assets.paths << Rails.root.join('lib')
+Rails.application.config.assets.paths << Rails.root.join('vendor')
+```
+
+En gros, c'est ici que tu indiqueras au pipeline dans quel répertoire il devra aller chercher tout ce dont il aura besoin. Pour faire appel aux fichiers il faut procéder comme ceci:
+
+Dans application.css:
+```
+*= require Dossier_de_ta_librairie/Ton_fichier
+```
+
+Ton fichier application.css devrait ressembler à quelque chose comme ceci:
+```ruby
+*= require_tree .
+*= require_self
+*= require css/bootstrap.min
+
+*= require css/bootstrap.min
+*= require css/swiper.min
+*= require hamburgers.min
+*= require animate.min
+```
+
+Dans application.js:
+```
+//= require Dossier_de_ta_librairie/Ton_fichier
+```
+
+ton fichier application.js devrait ressembler à quelque chose comme ceci:
+```
+//= require rails-ujs
+//= require activestorage
+//= require turbolinks
+//= require_tree .
+
+//= require jquery.min
+//= require popper.min
+//= require js/bootstrap.min
+//= require slidebar/slidebar
+```
+Lorsque tu appelles des ressources se trouvant dans les sous répertoires du dossier lib de ton app, il ne faut pas ajouter le sous repertoire, mais uniquement le nom du fichier que tu souhaites appeler.
+
+### Interface Admin
+
+Pour cette ressource, nous allons voir trois façons de faire une interface admin :
+
+- Brancher sa base de données à une SaaS qui fait tout le travail pour toi
+- Installer une gem qui va générer des scaffold administrateurs
+- Coder à la main son interface administrateur
+
+#### 1. Une SaaS
+Il existe des services où tu as juste à brancher des clé d'APIs, qui auront un accès à ta BDD, et qui te vendent une interface toute faite customisable à sa guise. ForestAdmin fait exactement cela. ForestAdmin est une entreprise française originaire de l'un des startup studios les plus célèbre au monde : eFounders.
+
+Tu as juste à installer la gem, mettre les clés d'APIs, pousser en prod, créer ton compte, puis à toi la gloire.
+
+#### 2. Une gem
+Si jamais tu trouves ForestAdmin trop cher / pas assez permissif, voici une sélection de gems qui te permettent d'avoir une interface admin :
+
+- administrate de nos amis Thoughbot (que l'on recommande)
+- rails_admin de sferik (le créateur de la gem Twitter)
+
+#### 3. Du code
+La technique que l'on utilise personnellement : coder son dashboard Admin à la main. Cela a plusieurs avantages : déjà, cela permet une maîtrise totale de ce que tu veux pouvoir y modifier. Ensuite, comme les views sont souvent des scaffolds purs et durs, et bien cela va assez vite au final. Voici quelques conseils pour faire son dashboard admin à la main :
+
+
+Comment ranger proprement son code ? Avec la notion de namespace, tu peux facilement mettre tout ce qui concerne le dashboard admin dans un dossier bien rangé. Puis comme cela tu peux avoir deux controllers pour les users : un pour l'interface normale, puis un autre dans le namespace admin. Le premier va juste faire des opérations limitées, puis l'autre c'est open bar pour faire ce que tu veux.
+
+Accès aux admins ?
+C'est simple : tu fais une méthode ```check_if_admin``` en ```before_action``` dans tous tes controllers Admin. Puis tu ajoutes un attribut ```is_admin``` booléen à tes utilisateurs. Si le ```current_user``` n'est pas ```admin```, tu l'envoies chier quand il arrive sur n'importe quelle action de ton dashboard admin.
+
+🤓 QUESTION RÉCURRENTE
+Mais dis-donc Jamy, vaut-il mieux faire un attribut is_admin aux utilisateurs, ou bien ajouter un model Admin indépendant du model User ?
+Très bonne question, et il y a deux écoles qui se valent. Voici ce qui peut faire pencher la balance vers un côté ou l'autre :
+
+L'attribut is_admin est bien plus rapide à coder que la génération d'un model via Devise pour les admins
+Si tes administrateurs ne peuvent pas être utilisateurs de ton site (trombinoscope des élèves d'une école par exemple), c'est mieux d'avoir un model Admin
+C'est légèrement plus sécurisé d'avoir le model Admin, car tu auras moins de chance de créer un model que de faire user.update(is_admin: true)
+
+
 ###A faire 
 pipeline image CSS
 background-image: url("home.jpg");
-stripe
 render/partials
 <%= render :partial => "cards/events_cards", :collection => @events, :as => :event %>
 
@@ -1333,6 +1528,12 @@ for  (var i = 0; i < collection.length; i++) {
    collection[i].setAttribute("src", imagesArray[i]);
    console.log(document.querySelector(".card-img-top"));
 }};```
+
+## ASSET PIPELINE
+L'Asset Pipeline permet de gérer les assets d'une application Rails (CSS, JavaScript, images) pour la production. Ce concept va disparaître d'ici quelques semaines mais est pour l'heure une partie importante de Rails.
+
+Tu peux commencer à regarder Weback, qui remplacera Rails dans quelques temps.
+https://github.com/rails/webpacker
 
 
 
