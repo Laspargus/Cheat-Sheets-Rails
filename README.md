@@ -1503,6 +1503,135 @@ Si tes administrateurs ne peuvent pas être utilisateurs de ton site (trombinosc
 C'est légèrement plus sécurisé d'avoir le model Admin, car tu auras moins de chance de créer un model que de faire user.update(is_admin: true)
 
 
+### RAILS - LES PARTIALS
+
+
+Les partials permettent de mettre des bouts de code de front dans un fichier à part. 
+- Le premier est que tu restes trop dans l'état d'esprit page par page (#so_2005) alors que le web moderne se pense composant par composant
+Prenons l'exemple de l'organisme d'un formulaire de contact. Ce dernier sera appelé principalement dans le controller contacts, sur la méthode new. Ainsi dans ta
+```view app/views/contacts/new.html.erb```
+ tu mettrais :
+
+- Le premier est que tu restes trop dans l'état d'esprit page par page (#so_2005) alors que le web moderne se pense composant par composant
+```ruby
+<%= render "form" %>
+```
+
+Puis tu vas créer un fichier ```app/views/contacts/_form.html.erb``` dans lequel tu mettrais ton organisme du formulaire de contact. Et voilà ! Ton application va appeler ton formulaire très facilement. Grâce à ce système de partials, tu peux penser ton application Rails comme une application moderne : chaque page est une succession d'organismes. Et chaque organisme va être appelé par une ou plusieurs pages. 
+
+⚠️ ALERTE ERREUR COMMUNE
+Comme tu peux le voir, la partial s'apelle en faisant ```<%= render "form" %>``` et le fichier s'appelle ``` _form.html.erb ``` et commence par un _. C'est une convention de rails qui permet de distinguer facilement une view (sans _) d'une partial (avec _).
+
+Donc, tu appelles les partials sans _, mais les fichiers se nomment avec un _.
+
+#### Où mettre ses partials
+Tu peux mettre les partials dans n'importe quel dossier de views et les appeler depuis n'importe quelle view. Voici comment faire :
+
+- Si la partial est dans le même dossier que la view, tu l'appelles en faisant ```<%= render "ta_partial" %>```
+- Si la partial n'est pas dans le même dossier que la view, tu précises le dossier. 
+Ainsi si je voulais appeler la partial ```app/views/contacts/_form.html.erb``` dans la view edit de la ressource users, tu écrirais dans ```<%= render "contacts/form" %>```
+
+Une partial que l'on appelle depuis le fichier ```application.html.erb``` (header, footer, alert) se met dans le dossier ```app/views/layouts/```
+Une partial que l'on appelle dans plusieurs pages de l'application (une bannière) se mettra dans un dossier ```app/views/shared/```
+Une partial qui concerne une ressource précise (une liste, un formulaire, un affichage précis) se met dans le dossier de la ressource. Ainsi, le formulaire pour créer un événement serait un fichier ```app/views/events/_forms.html.erb```
+
+
+Tu peux faire plein d'opérations sur les partials, comme par exemple passer des variables locales (pratique quand tu veux changer la photo de ta bannière). 
+
+#### application.html.erb
+Il existe un fichier qui s'appelle ```app/views/layouts/application.html.erb``` qui contient les fondements du fichier html de ton application. Le head, et le body. Tu peux y mettre des CDNs facilement, et notamment le fondement d'une page web.
+
+Certaines parties de ton application se retrouvent sur toutes les pages :
+
+- Le header
+- Le footer
+- Les alertes
+Ainsi, nous te conseillons de faire une partial pour chacun de ces éléments (que tu mettras dans ```app/views/layouts/```), et les mettre dans le body du fichier ```application.html.erb```. Cela devrait ressembler à ceci :
+```ruby
+<%= render 'layouts/header' %>
+<%= render 'layouts/flash'%>
+<%= yield %>
+<%= render 'layouts/footer'%>
+```
+🤓 QUESTION RÉCURRENTE
+Dis donc Jamy, comme les partials sont dans le même dossier que le fichier application.html.erb, ne faut-il pas faire simplement ```<%= render 'ma_partial' %>``` pour les appeler et non pas ```<%= render 'layouts/ma_partial' %>``` ? 🤔
+
+Oui pour tous les autres dossiers de views, mais pas celui-là 😉
+
+Ainsi, chaque page de ton application contiendra le header, le footer, et tu n'auras qu'à mettre les dernières molécules concernant la page 🤠
+
+## LES ALERTES
+
+#### Le Flash
+
+Tu te souviens du hash session qui te servait à stocker ce que tu voulais pendant une session d'utilisateur ? Figure-toi qu'il existe un autre hash dans Rails nommé flash et qui ne stocke les données que pour une page (session reste pour toute la session, mais flash disparait au bout d'une page).
+
+Ce système est utilisé principalement par Rails pour annoncer des informations aux utilisateurs. Ainsi, quand on crée un utilisateur, on peut faire ```flash[:success] = "Utilisateur bien enregistré"```, ce qui aura pour effet de le stocker dans un hash que l'on n'aura qu'à appeler dans notre view à la prochaine page.
+
+Tu peux créer facilement un hash flash qui tiendra sur une page de ton application. Ce hash sera modifié dans les controller et affiché dans les views. Avec Bootstrap, c'est facile de transformer ce hash en jolies alertes. On va commencer par mettre dans son fichier application.html.erb les lignes suivantes dans le body :
+
+```ruby
+<%= render 'layouts/header' %>
+<%= render 'layouts/flash'%>
+<%= yield %>
+<%= render 'layouts/footer'%>
+```
+
+Puis dans le fichier ```app/views/layouts/_flash.html.erb``` :
+
+```ruby
+<% flash.each do |type, msg| %>
+  <div class="alert <%= bootstrap_class_for_flash(type) %> alert-dismissable fade show" role="alert">
+    <%= msg %>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">×</span>
+  </button>
+  </div>
+<% end %>
+```
+
+Enfin, dans le fichier ```application_helper.rb``` :
+
+```ruby
+def bootstrap_class_for_flash(type)
+  case type
+    when 'notice' then "alert-info"
+    when 'success' then "alert-success"
+    when 'error' then "alert-danger"
+    when 'alert' then "alert-warning"
+  end
+end
+```
+
+Rails utilise par convention 4 types de flash :
+
+```notice```, pour les informations
+```success```, pour les opérations fructueuses
+```alert```, pour annoncer une information importante
+```error```, pour annoncer une erreur
+
+Ainsi, si tu veux créer un flash pour annoncer que le post que tu voulais créer a bien été créé en base, tu auras un controller qui ressemble à ceci :
+```ruby 
+def create
+  @post = Post.new(post_params)
+  if @post.save
+    flash[:success] = "Post was successfully created."
+    redirect_to @post
+  else
+    flash.now[:error] = @post.errors.full_messages.to_sentence
+    render :new
+  end
+end
+```
+
+#### Flash.now ou flash ?
+Lorsque tu n'arrives pas à faire ```.save```, tu fais ```render :la_view``` alors que tu fais un ```redirect_to``` lorsque tu arrives à faire ```.save.``` Pourquoi ? Car en faisant render tu gardes la variable d'instance ```@user```, ce qui est bien pour pouvoir afficher ses erreurs ou encore préremplir le formulaire avec ce que l'utilisateur a mis auparavant. Le soucis est que ton flash va s'afficher pour deux pages puisque tu ne fais pas de redirection. Il te faudra faire un ```flash.now[:ton_type] = "Ton message".```
+
+Donc pour rappel :
+
+Si tu fais un ```render :some_view```, tu fais un ```flash.now[:ton_type] = "Ton message"```
+Si tu fais ```redirect_to``` , tu fais un ```flash[:ton_type] = "Ton message"```
+
 ###A faire 
 pipeline image CSS
 background-image: url("home.jpg");
