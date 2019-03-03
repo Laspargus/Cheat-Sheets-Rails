@@ -1738,6 +1738,37 @@ Un exemple de controller qui affiche le contenu du mail et modifie son statut (r
     end
   end
 ```
+## GIT BRANCH
+
+Petite astuce pour manipuler vos branches : vous pouvez utiliser la commande 'git checkout -b' pour créer une branche et vous y positionner. Ainsi, au lieu de taper la commande suivante pour créer votre branche :
+
+```git branch ma-branche``` , puis une deuxième commande pour vous y positionner :
+
+```git checkout ma-branche``` , vous pouvez regrouper ces deux opérations en une seule commande : 
+
+```git checkout -b ma-branche```
+
+Lorsque vous travaillez sur plusieurs branches, il va souvent vous arriver de vouloir ajouter  dans une branche A les mises à jour que vous avez faites dans une autre branche B. Pour cela, on se place dans la branche A :
+
+```git checkout brancheA```
+Puis on utilise la commande git merge : 
+
+```git merge brancheB```
+
+/!\ Si un collaborateur a modifié master pendant que je travaillais sur une branche, il faut :
+1/Git checkout master
+2/Git pull origin master
+3/Git checkout MaBranche
+4/Git merge master
+5/Git checkout master
+6/Git merge MaBranche
+
+/!\En cas de conflits
+Il faut ouvrir le fichier à l'origine du conflit sur son éditeur de texte. 
+Supprimer une partie du code responsable du conflit.
+```Git add .```
+```Git commit``` 
+Le commit doit se faire sans message. 
 
  
  http://thehackingproject.herokuapp.com/dashboard/weeks/8/days/3?locale=fr
