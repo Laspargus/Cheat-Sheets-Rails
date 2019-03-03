@@ -1659,13 +1659,93 @@ https://github.com/rails/webpacker
 
 
 
-# A FAIRE
 
+
+ ## AJAX FOR RAILS
+ 
+ ### Formulaire Ajax
+ Ajouter l'atttribut ```remote: true``` dans un formulaire ou un boutton permet de soumettre de manière asynchrone via AJAX.
+ 
+ Un exemple de code pour le controller :
+ ```ruby
+ def create
+  @book = Book.new(book_params)
+    if @book.save
+      respond_to do |format|
+        format.html { redirect_to books_path }
+        format.js
+      end
+    end
+  end
+
+  private
+
+  def book_params
+    params.permit(:title, :author)
+  end
+  ```
+  
+  Je veux que lorsque j'ajoute un titre, il s'ajoute à ma liste sur la page index sans recharger la page. Je vais donc créer un partial ```_book.html.erb``` dans mon dossier views:
+
+```ruby
+<%= book.title %> by <%= book.author  %>
+```
+Maintenant, je vais écrire mon script ```create.js.erb``` dans le dossier ```app>views>books``` qui s'occupera de rajouter mon élément dans le ul de ma page index
+```ruby 
+document.getElementById("book").querySelectorAll('ul')[0].insertAdjacentHTML("beforeend", "<%= j render 'book', book: @book %>")
+```
+
+
+Dans ce script, je sélectionne l'élément ul puis j'ajoute l'HTML de mon partial à la fin de mon ul. Ce script est à affiner pour par exemple vider le contenu des inputs quand il est soumis, etc...
+
+
+
+
+Pour éviter les problème de double quote, on utilise la fonction escape_javascript. Elle assure que vos caractères spéciaux ne casse pas votre script ! Ex :
+```ruby
+document.getElementById("books").appendChild("<%= escape_javascript(render "book", book: @book) %>");
+alert("book created");
+```
+
+Mais que fait ce script ? C'est très simple : il va sélectionner l'élément du DOM qui t'intéresse et va lui rajouter le partial book et lui passer la variable locale @book.
+
+
+Ce script peut également être en Jquery. Voici un exemple d'utilisation avec du jQuery. Voici un exemple d'tuilisation pour afficher le contenu d'un mail. j remplace escape_javascript.
+
+```javascript
+<%# $('show-mail').html("<%= j (render 'email_show')") %>
+$( document ).ready(function() {
+
+$('#show-mail').html("<%= j (render 'email_show') %>");
+$("#show-mail").show();
+$('#mail-list').html("<%= j (render 'emails_list') %>");
+
+  $(document).on("click", "#close-show", function(){
+    $("#show-mail").hide();
+  });
+});
+```
+Un exemple de controller qui affiche le contenu du mail et modifie son statut (read:true||false)
+```ruby
+  def show
+    @email = Email.find(params[:id])
+    @emails=Email.all # needed for sidebar, probably better to use a cell for this
+    @email.toggle!(:read)
+    # @email.update_attribute(:read, [true])
+        respond_to do |format|
+        format.html # show.html.erb
+        format.js {render layout: false}
+    end
+  end
+```
+
+ 
+ http://thehackingproject.herokuapp.com/dashboard/weeks/8/days/3?locale=fr
+ 
+ # A FAIRE
+ 
 ### FORM WITH
  https://m.patrikonrails.com/rails-5-1s-form-with-vs-old-form-helpers-3a5f72a8c78a
- 
- ### AJAX FOR RAILS
- http://thehackingproject.herokuapp.com/dashboard/weeks/8/days/3?locale=fr
  
  ###A faire 
 explication sur appel en backgroudn CSS des images du pipeline
