@@ -1691,7 +1691,7 @@ https://github.com/rails/webpacker
 <%= book.title %> by <%= book.author  %>
 ```
 Maintenant, je vais écrire mon script ```create.js.erb``` dans le dossier ```app>views>books``` qui s'occupera de rajouter mon élément dans le ul de ma page index
-```ruby 
+```javascript 
 document.getElementById("book").querySelectorAll('ul')[0].insertAdjacentHTML("beforeend", "<%= j render 'book', book: @book %>")
 ```
 
@@ -1702,7 +1702,7 @@ Dans ce script, je sélectionne l'élément ul puis j'ajoute l'HTML de mon parti
 
 
 Pour éviter les problème de double quote, on utilise la fonction escape_javascript. Elle assure que vos caractères spéciaux ne casse pas votre script ! Ex :
-```ruby
+```javascript
 document.getElementById("books").appendChild("<%= escape_javascript(render "book", book: @book) %>");
 alert("book created");
 ```
