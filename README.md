@@ -1770,8 +1770,14 @@ Supprimer une partie du code responsable du conflit.
 ```Git commit``` 
 Le commit doit se faire sans message. 
 
- 
- http://thehackingproject.herokuapp.com/dashboard/weeks/8/days/3?locale=fr
+Il existe un autre moyen plus direct de retrouver qui a fait une modification particulière dans un fichier : la commande git blame.
+
+```git blame nomdufichier.extension```
+
+
+
+
+
  
  # A FAIRE
  
