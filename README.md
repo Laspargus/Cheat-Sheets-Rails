@@ -93,6 +93,9 @@ $ heroku create
 $ git push heroku master
 ```
 
+Pour ajouter un remote Heroku sur un repertoire existant :
+```heroku git:remote -a nomdelapplisurheroku```
+
 ## Rails
 
 
