@@ -1563,6 +1563,12 @@ Oui pour tous les autres dossiers de views, mais pas celui-là 😉
 
 Ainsi, chaque page de ton application contiendra le header, le footer, et tu n'auras qu'à mettre les dernières molécules concernant la page 🤠
 
+#### Partial avec variable
+Pour passer une variable à une partial, il faut partir de  la variable communiquée par le controller de la vue principale.
+Dans l'exemple : @cart
+
+<%= render "layouts/cart_description", cart: @cart %>
+
 ## LES ALERTES
 
 #### Le Flash
