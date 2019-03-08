@@ -1641,6 +1641,15 @@ Donc pour rappel :
 Si tu fais un ```render :some_view```, tu fais un ```flash.now[:ton_type] = "Ton message"```
 Si tu fais ```redirect_to``` , tu fais un ```flash[:ton_type] = "Ton message"```
 
+/!\Pour renvoyer la mêmme page que celle qui a généré la requête on utilise
+```redirect_back```
+
+Cela peut être utile sir l'appel au controller est issue d'une page différente. par exemple un boutton de mise à jour cart_item qui serait sur une page panier. 
+
+Au cas ou le referer http ne passe pas dans le header, on ajoute un attribut fallback_location :
+
+```redirect_back fallback_location: root_path```
+
 
 
 #### Ajouter des images à ma home en javascript
