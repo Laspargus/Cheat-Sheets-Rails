@@ -1747,6 +1747,17 @@ Un exemple de controller qui affiche le contenu du mail et modifie son statut (r
     end
   end
 ```
+
+
+Pour passer un params dans un boutton avec un remote : 
+
+:nom du param => "valeur du param"
+``` <%= link_to line_item_path(item.id, :operator => "reduce"), method: :PUT, remote: true do %>```
+Pour récupérer le param dans mon controlleur :
+ ```@operator = params[:operator]```
+ 
+ 
+ 
 ## GIT BRANCH
 
 Petite astuce pour manipuler vos branches : vous pouvez utiliser la commande 'git checkout -b' pour créer une branche et vous y positionner. Ainsi, au lieu de taper la commande suivante pour créer votre branche :
