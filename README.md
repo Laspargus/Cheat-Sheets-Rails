@@ -9,6 +9,10 @@ If you would like to make one specific Ruby be the default ruby that is selected
 
 `$ ruby -v`
 
+To use different version of ruby 
+
+`$ rvm use 2.6.2
+
 To switch back to your system ruby:
 
 `$ rvm use system`
