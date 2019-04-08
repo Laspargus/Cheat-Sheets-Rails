@@ -1842,7 +1842,21 @@ Il existe un autre moyen plus direct de retrouver qui a fait une modification pa
 
 ```git blame nomdufichier.extension```
 
+## If Statement
 
+If…Else
+Traditional
+```ruby
+if today == ChristmasEve
+  puts "Santa's On His Way!"
+else
+  puts "Snow"
+end
+```
+
+Shorthand
+
+```today == ChristmasEve ? (puts "Santa's On His Way!") : (puts "Snow")```
 
 
 
