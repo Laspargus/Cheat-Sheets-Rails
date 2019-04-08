@@ -1,5 +1,40 @@
 # Cheat-Sheets-Rails
 
+
+## Version Ruby
+
+If you would like to make one specific Ruby be the default ruby that is selected when you open a new terminal shell, use the --default flag:
+
+`$ rvm --default use 2.6.2`
+
+`$ ruby -v`
+
+To switch back to your system ruby:
+
+`$ rvm use system`
+
+`$ ruby -v`
+
+
+To switch at any time to the ruby you have selected as default:
+
+`$ rvm default`
+
+`$ ruby -v`
+
+To show what ruby is currently the selected default, if any, do:
+
+`$ rvm list`
+
+ * ruby-1.9.3-p484 [ x86_64 ]
+   ruby-2.0.0-p481 [ x86_64 ]
+=> ruby-2.1.1 [ x86_64 ]
+
+# => - current
+# =* - current && default
+#  * - default
+
+
 ## Installation
 
 Commencer par créer une nouvelle appli rails :
