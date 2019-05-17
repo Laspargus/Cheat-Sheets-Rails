@@ -135,6 +135,23 @@ $ git push heroku master
 Pour ajouter un remote Heroku sur un repertoire existant :
 ```heroku git:remote -a nomdelapplisurheroku```
 
+
+### How to reset PG Database on Heroku? (From Gauthier Sayarath, #Monsieur)
+
+```
+Step 1: heroku restart.
+Step 2: heroku pg:reset DATABASE (no need to change the DATABASE )
+Step 3: heroku run rake db:migrate.
+Step 4: heroku run rake db:seed (if you have seed)
+```
+
+
+
+Il faut également ajouter à la fin de chaque commande le nom de son app. Ex :
+```--app theteachingproject-staging ```
+
+
+
 ## Rails
 
 
