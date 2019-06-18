@@ -1889,3 +1889,11 @@ background-image: url("home.jpg");
 
 ###A faire
 cheatsheet Javascript
+
+### Backgorund Job
+
+pour killer les jobs en cours
+tapez ça en console : ```Sidekiq.redis { |conn| conn.flushdb }```
+ou ```docker down -v```
+
+
