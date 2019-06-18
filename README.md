@@ -1896,4 +1896,6 @@ pour killer les jobs en cours
 tapez ça en console : ```Sidekiq.redis { |conn| conn.flushdb }```
 ou ```docker down -v```
 
+pour killer les conteneurs, se placer dans le dossier du projet et taper ```docker-compose down```
+
 
