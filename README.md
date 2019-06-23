@@ -1898,4 +1898,5 @@ ou ```docker down -v```
 
 pour killer les conteneurs, se placer dans le dossier du projet et taper ```docker-compose down```
 
-
+Pour lancer sidekiq avec le fichier de config sidekiq.yml
+sidekiq -C config/myapp_sidekiq.yml
