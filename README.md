@@ -1900,3 +1900,8 @@ pour killer les conteneurs, se placer dans le dossier du projet et taper ```dock
 
 Pour lancer sidekiq avec le fichier de config sidekiq.yml
 sidekiq -C config/sidekiq.yml
+
+### Heroku Remote
+```git remote rm heroku```
+
+
