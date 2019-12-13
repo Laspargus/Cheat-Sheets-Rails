@@ -1902,6 +1902,15 @@ Pour lancer sidekiq avec le fichier de config sidekiq.yml
 sidekiq -C config/sidekiq.yml
 
 ### Heroku Remote
+
+Pour déconnecter un répo d'une application Heroku
 ```git remote rm heroku```
+
+Pour lister les répo git : 
+```git remote -v```
+
+Pour connecter une app heroku : 
+```heroku git:remote -a NOM_DE_LAPP -r heroku```
+
 
 
