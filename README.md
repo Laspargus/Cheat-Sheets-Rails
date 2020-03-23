@@ -57,6 +57,11 @@ Donnera
 $ rails new -d postgresql nom_de_mon_app
 ```
 
+Pour skipper les test units (si on utilise rspec par ex)
+```
+$ rails new -d postgresql nom_de_mon_app -T
+```
+
 
 Modifier son Gemfile. Voici celui de Félix : 
 https://github.com/felhix/cheat_sheets/blob/master/Ruby/Gemfile.rb
