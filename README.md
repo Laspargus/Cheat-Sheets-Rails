@@ -62,6 +62,11 @@ Pour skipper les test units (si on utilise rspec par ex)
 $ rails new -d postgresql nom_de_mon_app -T
 ```
 
+Pour créer une application qui ne sera qu'une api (sans interface)
+```
+$ rails new -d postgresql nom_de_mon_app --api -T
+```
+
 
 Modifier son Gemfile. Voici celui de Félix : 
 https://github.com/felhix/cheat_sheets/blob/master/Ruby/Gemfile.rb
